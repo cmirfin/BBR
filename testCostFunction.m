@@ -6,7 +6,7 @@ shift = [-shift, 0, shift];
 for i = 1:length(shift)
     
     
-    [cost(i),grad(i)] = boundaryCost(shift(i),im1,im1);
+    [cost(i),grad(i)] = boundaryCost(shift(i),new,new);
     
 end
 
@@ -17,9 +17,9 @@ title('Cost as function of theta')
 ylabel('Cost')
 xlabel('x shift')
 
-figure;
-scatter(shift,grad);
-title('Gradient as function of theta')
-ylabel('Gradient')
-xlabel('Theta(1)')
+% figure;
+% scatter(shift,grad);
+% title('Gradient as function of theta')
+% ylabel('Gradient')
+% xlabel('Theta(1)')
 

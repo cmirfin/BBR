@@ -9,8 +9,8 @@ fixedImg = imguidedfilter(fixedImg,'NeighborhoodSize',[4,4]);
 
 %parameters
 M = 0.5;
-DeltaW = 1; %white matter projection distance
-DeltaG = 1; %gray matter projection distance
+DeltaW = 2; %white matter projection distance
+DeltaG = 2; %gray matter projection distance
 
 [m,n] = size(fixedImg);
 
@@ -25,7 +25,7 @@ N = length(boundary); %find number of boundary points
 rPointsIn = boundary - round(DeltaG.*[normals(:,1),normals(:,2)]);
 rPointsOut = boundary + round(DeltaW.*[normals(:,1),normals(:,2)]);
 
-plotBoundaries(rPointsIn,rPointsOut,boundary,fixedImg);
+%plotBoundaries(rPointsIn,rPointsOut,boundary,fixedImg);
 
 for i = 1:N
         
@@ -57,16 +57,21 @@ end
 %J = double(sum((tImg(:) - fixedImage(:)).^2)); %SSD
 J = double(J./N);
 grad = (200/N)*(double(grad));
-fprintf('Cost: %f\n', J);
+%fprintf('Cost: %f\n', J);
 %disp(grad);
 
 end
 
 function tImg= transformImage(img, t)
+p = zeros(1,6);
+if length(t) < 3
+    p(5:6) = t(1:2);
+else
+    p = t;
+end
+A = [1+p(1) p(3) p(5); p(2) 1+p(4) p(6); 0 0 1]';
 
-% A = [1+t(1) t(3) t(5); t(2) 1+t(4) t(6); 0 0 1]';
-
-A = [1 0 t;0 1 0; 0 0 1]';
+% A = [1 t(3) t(1);t(4) 1 t(2); 0 0 1]';
 
 tform = affine2d(A);
 

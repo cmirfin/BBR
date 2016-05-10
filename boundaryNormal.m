@@ -8,12 +8,16 @@ else
     Delta = ceil(Delta)+1;
 end
 
-% %preprocessing
-% thresh = 50;
+%preprocessing
+% h = fspecial('gaussian',[5,5]);
+% img = imfilter(img,h);
+
+%img = medfilt2(img,[5,5]);
+
+% thresh = 25;
 % T = zeros(size(img));
 % T(img>thresh) = 1;
 % T(img<=thresh) = 0;
-
 
 %find boundary points
 [boundaryImg] = edge(img,'sobel');
@@ -52,6 +56,6 @@ Nx(X(i),Y(i)) = nx(i);
 Ny(X(i),Y(i)) = ny(i);
 end
 
-quiver(Nx,Ny);
+%quiver(Nx,Ny);
 end
 
