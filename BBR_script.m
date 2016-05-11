@@ -14,23 +14,23 @@ im1 = medfilt2(im1,[5,5]);
 
 %% create artificial image
 
-A = [1 0 4; 0 1 5; 0 0 1]';
+A = [1 0 4; 0 1 6; 0 0 1]';
 tform = affine2d(A);
 im2 = imwarp_same(im1,tform);
 
 %% Optimization of cost function using local solver
 
 %  Set options for fminunc
-%options = optimset('GradObj', 'on', 'MaxIter', 500);
+options = optimset('GradObj', 'on', 'MaxIter', 500,'Display','iter');
 % initial_theta = [0,0,0,0,0,4.5];
-initial_theta = [3];
+initial_theta = [7, 7];
 
 %  Run fminunc to obtain the optimal theta
 %  This function will return theta and the cost 
-%[theta, cost] = fminunc(@(t)(boundaryCost(t, im1, im2)), initial_theta, options);
-figure;
-options = optimset('OutputFcn', @outfun);
-[theta, cost] = fminsearch(@(t)(boundaryCost(t, im1, im2)), initial_theta,options);
+[theta, cost,exitflag,output] = fminunc(@(t)(boundaryCost(t, im1, im2)), initial_theta, options);
+
+%options = optimset('OutputFcn', @outfun);
+%[theta, cost] = fminsearch(@(t)(boundaryCost(t, im1, im2)), initial_theta);
 
 % Print theta to screen
 fprintf('Cost at theta found by fminunc: %f\n', cost);

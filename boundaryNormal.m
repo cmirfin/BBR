@@ -9,7 +9,7 @@ else
 end
 
 %preprocessing
-% h = fspecial('gaussian',[5,5]);
+%h = fspecial('gaussian',[3,3]);
 % img = imfilter(img,h);
 
 %img = medfilt2(img,[5,5]);
@@ -21,7 +21,6 @@ end
 
 %find boundary points
 [boundaryImg] = edge(img,'sobel');
-
 
 %reduce 
 newBoundaryImg = zeros(size(img));
@@ -44,7 +43,7 @@ for i = 1:length(X)
     ny(i) = dy(X(i),Y(i));
 end
 normals = abs([nx;ny])';
-
+%normals = ([nx;ny])';
 
 %plot vectors
 Nx = zeros(size(img));
