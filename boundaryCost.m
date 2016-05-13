@@ -18,6 +18,7 @@ tImg = transformImage(movingImg,theta); %transform movingImg by theta.
 
 [Fx,Fy] = gradient(fixedImg);
 
+
 [boundary,normals] = boundaryNormal(tImg,max(DeltaW,DeltaG));%get normals to boundary
 N = length(boundary); %find number of boundary points
 

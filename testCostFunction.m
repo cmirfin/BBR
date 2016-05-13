@@ -1,10 +1,9 @@
 %script to test cost function
 clear cost; clear grad;
-shiftX = [-5:0.5:10];
-
+shiftX = (-20:0.5:20);
 for i = 1:length(shiftX)
     theta = shiftX(i);
-    [cost(i), grad(i)] = boundaryCost(theta,im1,im1);
+    [cost(i),grad(i)] = boundaryCost2(theta,rIn,rOut,fixedImage,Fx,Fy);
 
 end
 
@@ -20,4 +19,5 @@ scatter(shiftX,grad);
 title('Gradient as function of theta')
 ylabel('Gradient')
 xlabel('Theta(1)')
+
 

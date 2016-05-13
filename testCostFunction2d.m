@@ -11,8 +11,8 @@ for i = 1:size(shiftX,1)
 end
 
 figure;
-%surf(shiftX,shiftY,cost);
-contour(shiftX,shiftY,cost);
+surf(shiftX,shiftY,cost);
+%contour(shiftX,shiftY,cost);
 % figure;
 % scatter(shift,cost);
 % 
