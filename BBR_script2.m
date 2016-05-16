@@ -12,13 +12,12 @@ path2 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/PLI/Transmittanc
 %% pre-processing
 
 fixedImage = medfilt2(im1,[5,5]);
-
 %% create artificial image
 
 A = [1 0 0; 0 1 0; 0 0 1]';
 tform = affine2d(A);
+%movingImage = imwarp(fixedImage,tform,'OutputView');
 movingImage = imwarp_same(fixedImage,tform);
-
 %% find boundary and projection points in moving image (im1)
 DeltaIn = 2; %projection distance
 DeltaOut = 2;
@@ -33,7 +32,7 @@ rOut = boundaryPoints + round(DeltaOut.*[normals(:,1),normals(:,2)]);
 %  Set options for fminunc
 options = optimset('GradObj', 'on', 'MaxIter', 500,'Display','iter');
 % initial_theta = [0,0,0,0,0,4.5];
-initial_theta = [2];
+initial_theta = [3,2];
 
 %  Run fminunc to obtain the optimal theta
 %  This function will return theta and the cost 

@@ -1,6 +1,6 @@
 %script to test cost function
 clear cost; clear grad;
-shiftX = (-20:0.5:20);
+shiftX = [-10:0.1:10];
 for i = 1:length(shiftX)
     theta = shiftX(i);
     [cost(i),grad(i)] = boundaryCost2(theta,rIn,rOut,fixedImage,Fx,Fy);

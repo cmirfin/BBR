@@ -1,12 +1,14 @@
 %script to test cost function
-
-[shiftX, shiftY] = meshgrid(-4:0.5:10);
+clear cost; clear grad;
+[shiftX, shiftY] = meshgrid(-5:1:5);
 
 for i = 1:size(shiftX,1)
     for j =1:size(shiftY,2)
     
         theta = [shiftX(i,j),shiftY(i,j)];
-        [cost(i,j)] = boundaryCost(theta,im1,im2);
+        [cost(i,j), gradtmp] = boundaryCost2(theta,rIn,rOut,fixedImage,Fx,Fy);
+        gx(i,j) = gradtmp(1);
+        gy(i,j) = gradtmp(2);
     end
 end
 
