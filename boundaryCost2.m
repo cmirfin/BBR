@@ -11,7 +11,7 @@ rPrimeOut = transformPoints(rOut,theta,m,n);
 
 xPrime = [rPrimeIn(:,1); rPrimeOut(:,1)];
 yPrime = [rPrimeIn(:,2); rPrimeOut(:,2)];
-[xPrime,yPrime] = checkPoints(xPrime,yPrime); %rmove overlapping points
+%[xPrime,yPrime] = checkPoints(xPrime,yPrime); %rmove overlapping points
 
 N = length(xPrime)/2; %number of boundary points 
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
