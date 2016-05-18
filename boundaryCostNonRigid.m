@@ -1,12 +1,12 @@
 function [cost,phi] = boundaryCostNonRigid(phi,points,normals,fixedImage,Fx,Fy)
 
 %parameters
-M = 0.05;
+M = 0.005;
 DeltaIn = 2; %projection distance
 DeltaOut = 2;
 
 lambda = 0.1; %regularization
-stepsize = 10;
+stepsize = 5;
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
@@ -14,6 +14,7 @@ maxIterations = 500;
 
 for i = 1:maxIterations
     %transform boundary points
+    %points = sort(points,'rows');
     projectedPoints = transformPointsNonRigid(points,phi,m,n,normals,DeltaIn,DeltaOut);
     N = size(projectedPoints,1); %number of transformed boundary points.
 
@@ -84,8 +85,10 @@ rPrime = [xuIn(:), yvIn(:), xuOut(:), yvOut(:)];
 %remove points outside of image domain or NaN
 [ind,~] = find(rPrime == 0);
 rPrime(ind,:) = [];
-
+% phi(ind,:) = [];
+% normals(ind,:) = [];
 end
+
 
 
 

@@ -27,7 +27,7 @@ DeltaOut = 2;
 [Fx,Fy] = gradient(fixedImage);
 %% optimization
 
-initialTransform = 6*ones(length(boundaryPoints),2);
+initialTransform = 7*ones(length(boundaryPoints),2);
 
 [cost,phi] = boundaryCostNonRigid(initialTransform,boundaryPoints,normals,fixedImage,Fx,Fy);
 scatter(1:length(cost),cost);
