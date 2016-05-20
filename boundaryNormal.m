@@ -8,14 +8,13 @@ else
     Delta = ceil(Delta)+1;
 end
 
-
 %find boundary points
 [boundaryImg] = edge(img,'sobel');
 
 %reduce 
 newBoundaryImg = zeros(size(img));
-newBoundaryImg(Delta:end-Delta,Delta:end-Delta) = boundaryImg(Delta:end-Delta,Delta:end-Delta);
-%newBoundaryImg(80:end-20,70:end-80) = boundaryImg(80:end-20,70:end-80);
+%newBoundaryImg(Delta:end-Delta,Delta:end-Delta) = boundaryImg(Delta:end-Delta,Delta:end-Delta);
+newBoundaryImg(80:end-20,80:end-80) = boundaryImg(80:end-20,80:end-80);
 [X,Y] = find(newBoundaryImg == 1);
 boundary = [X(:),Y(:)];
 

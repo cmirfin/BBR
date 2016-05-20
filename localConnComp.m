@@ -1,4 +1,4 @@
-function count = localConnComp(boundaryPoints, backgroundSegmentation)
+function array = localConnComp(boundaryPoints, backgroundSegmentation)
 
 numPoints = size(boundaryPoints,1);
 R = 9;
