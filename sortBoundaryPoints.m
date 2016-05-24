@@ -1,5 +1,5 @@
 %sort boundary points
-function [sortedPoints,position] = sortBoundaryPoints(points)
+function [result,position] = sortBoundaryPoints(points)
 
 %data = [2,2 ; 2,3 ; 1,2 ; 1,3 ; 2,1 ; 1,1 ; 3,2 ; 3,3 ; 3 ,1];
 dist = pdist2(points,points); %calculates Euclidian distance between points
@@ -30,7 +30,7 @@ for ii=2:N
     [val, closest_idx] = min(dist(result(ii-1),:)); %find next nearest neighbour
     
     result(ii) = closest_idx;
-    if val > 5
+    if val > 2
        %flag as new line segment if greater than 5 pixels apart
         position = [position, ii];
         
@@ -38,4 +38,4 @@ for ii=2:N
            
 end
 
-sortedPoints = points(result,:); %sort points in line order
+%sortedPoints = points(result,:); %sort points in line order

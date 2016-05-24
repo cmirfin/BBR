@@ -1,19 +1,27 @@
-function splineBoundary(x,y,m)
+function [CS, norms] = splineBoundary(points)
 
-% t = linspace(0,1,numel(x) ); % define the parameter t
-% fitX = fit( t, x, 'cubicinterp'); % fit x as a function of parameter t
-% fitY = fit( t, y, 'cubicinterp'); % fit y as a function of parameter t
-% plot( fitX, fitY, 'r-' ); % plot the parametric curve
+% 
+% n = length (x);
+% s = zeros (n,1);
+% for i = 2:n
+%      s(i) = s(i-1) + sqrt((x(i)-x(i-1))^2+(y(i)-y(i-1))^2);
+% end
+% sout = linspace(0, s(n), m)';
+% xout = spline(s, x, sout);
+% yout = spline(s, y, sout);
+% figure;
+% plot (x, y, 'ro', xout, yout, 'b');
+% end
 
+CS = cscvn(points'); %NOTE transpose on points
+der = fnder(CS);
+dydx = abs(ppval(der,CS.breaks)'); %NOTE transpose
 
-n = length (x);
-s = zeros (n,1);
-for i = 2:n
-     s(i) = s(i-1) + sqrt((x(i)-x(i-1))^2+(y(i)-y(i-1))^2);
-end
-sout = linspace(0, s(n), m)';
-xout = spline(s, x, sout);
-yout = spline(s, y, sout);
-figure;
-plot (x, y, 'ro', xout, yout, 'b');
-end
+dy = dydx(:,1);
+dx = dydx(:,2);
+
+l=sqrt(dx.^2+dy.^2);
+dx = dx./l; 
+dy = dy./l;
+
+norms = [dx(:),dy(:)];

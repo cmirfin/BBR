@@ -14,7 +14,7 @@ end
 %reduce 
 newBoundaryImg = zeros(size(img));
 %newBoundaryImg(Delta:end-Delta,Delta:end-Delta) = boundaryImg(Delta:end-Delta,Delta:end-Delta);
-newBoundaryImg(80:end-20,80:end-80) = boundaryImg(80:end-20,80:end-80);
+newBoundaryImg(85:end-25,80:end-80) = boundaryImg(85:end-25,80:end-80);
 [X,Y] = find(newBoundaryImg == 1);
 boundary = [X(:),Y(:)];
 
@@ -32,8 +32,8 @@ for i = 1:length(X)
     nx(i) = dx(X(i),Y(i));
     ny(i) = dy(X(i),Y(i));
 end
-normals = abs([nx;ny])';
-%normals = ([nx;ny])';
+%normals = abs([nx;ny])';
+normals = ([nx;ny])';
 
 %plot vectors
 Nx = zeros(size(img));
