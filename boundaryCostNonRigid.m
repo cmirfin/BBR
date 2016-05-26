@@ -1,17 +1,15 @@
 function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,Fx,Fy,endpoints)
 
-
-
 %parameters
-M = 0.05;
+M = 0.5;
 DeltaIn = 2; %projection distance
 DeltaOut = 2;
 
-alpha = 0.3; %regularization
+alpha = 0.6; %regularization
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
-maxwarp = 200;
+maxwarp = 100;
 
 u1 = zeros(size(points,1),1);
 v1 = u1;
@@ -50,10 +48,15 @@ for i = 1:maxwarp
     end
     grad = double((400*M/N)*grad);
     Ix = grad(:,1); Iy = grad(:,2);
-    [u1,v1]=solveFlowMldivide(Ix,Iy,u1,v1,alpha,endpoints);
+    [u1,v1,uChange,vChange]=solveFlowMldivide(Ix,Iy,u1,v1,alpha,endpoints);
     
-    plot(i,J,'.');
+    %regularization cost
+    [Du,Dv] = transformDerivatives(uChange,vChange,endpoints);
+    R = 0.5*alpha*sum(Du.^2 + Dv.^2);
+       
+    plot(i,J+R,'.b');
     hold on;
+    %plot(i,R,'.r')
     drawnow;
 end
 
@@ -95,17 +98,27 @@ rPrime = [xuIn(:), yvIn(:), xuOut(:), yvOut(:)];
 % normals(ind,:) = [];
 end
 
-function  [D_phi, D2_phi] = transformDerivatives(phi)
+function  [Du,Dv] = transformDerivatives(u,v,endpoints)
     deriv=[-1,0,1]/2;
-    D_phi = imfilter(phi,deriv','replicate'); %NOTE: transpose on deriv
+    %D = imfilter([u,v],deriv','replicate'); %NOTE: transpose on deriv
+    %Dv = imfilter(v,deriv','replicate'); 
+    phi = [u,v];
+    D(1:endpoints(1),:) = imfilter(phi(1:endpoints(1),:),deriv',0);
+    for i = 1:numel(endpoints)-1
+         
+        a = endpoints(i);
+        b = endpoints(i+1);
+        
+        D(a:b,:) = imfilter(phi(a:b,:),deriv',0);
+                
+    end
+    D(endpoints(end):length(u),:) = imfilter(phi(endpoints(end):length(u),:),deriv',0);
     
-    deriv2=[1,-2,1]/4;
-    D2_phi = imfilter(phi,deriv2','replicate'); %NOTE: transpose on deriv2
-    
-    
+    Du = D(:,1);
+    Dv = D(:,2);
 end
 
-function [u1,v1]=solveFlowMldivide(Ix,Iy,u0,v0,alpha,endpoints)
+function [u1,v1,uChange,vChange]=solveFlowMldivide(Ix,Iy,u0,v0,alpha,endpoints)
 N = length(Ix);
 
 %laplace operator
@@ -140,9 +153,12 @@ uv1=-A\b;
 tOp=toc;
 u1=reshape(uv1(1:N),N,1);
 v1=reshape(uv1(N+1:end),N,1);
-
+uChange = u1;
+vChange = v1;
 
 u1=u1+u0;
 v1=v1+v0;
+
+
 end
 
