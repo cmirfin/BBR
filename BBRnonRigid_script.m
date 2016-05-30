@@ -34,14 +34,24 @@ normals = normals(order,:);
 [u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,Fx,Fy,endpoints);
 
 
-%% visualization
+%% boundary visualization
 
 tpoints = round([u,v] + boundaryPoints);
-boundaryImg = zeros(size(fixedImage));
+boundaryImg = gx;
 for i = 1:length(boundaryPoints)
-    boundaryImg(boundaryPoints(i,1),boundaryPoints(i,2)) = 50;
-    boundaryImg(tpoints(i,1),tpoints(i,2)) = 100;
+    %boundaryImg(boundaryPoints(i,1),boundaryPoints(i,2)) = 50;
+    boundaryImg(tpoints(i,1),tpoints(i,2)) = 200;
     
 end
 figure;
 imagesc(boundaryImg)
+
+%% interpolating vector field
+
+%intialize flow fields
+u0 = zeros(size(movingImage));
+v0 = u0;
+
+[uF,vF] = elasticSolver(u,v,boundaryPoints,u0,v0);
+outputImage = transformInterpolation2d(movingImage,uF,vF);
+%outputImage = medfilt(outputImage,[5,5]);

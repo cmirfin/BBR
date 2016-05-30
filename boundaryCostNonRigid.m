@@ -5,11 +5,11 @@ M = 0.5;
 DeltaIn = 2; %projection distance
 DeltaOut = 2;
 
-alpha = 0.6; %regularization
+alpha = 0.3; %regularization
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
-maxwarp = 100;
+maxwarp = 400;
 
 u1 = zeros(size(points,1),1);
 v1 = u1;
@@ -48,7 +48,7 @@ for i = 1:maxwarp
     end
     grad = double((400*M/N)*grad);
     Ix = grad(:,1); Iy = grad(:,2);
-    [u1,v1,uChange,vChange]=solveFlowMldivide(Ix,Iy,u1,v1,alpha,endpoints);
+    [u1,v1,uChange,vChange]=solveFlow(Ix,Iy,u1,v1,alpha,endpoints);
     
     %regularization cost
     [Du,Dv] = transformDerivatives(uChange,vChange,endpoints);
@@ -118,7 +118,7 @@ function  [Du,Dv] = transformDerivatives(u,v,endpoints)
     Dv = D(:,2);
 end
 
-function [u1,v1,uChange,vChange]=solveFlowMldivide(Ix,Iy,u0,v0,alpha,endpoints)
+function [u1,v1,uChange,vChange]=solveFlow(Ix,Iy,u0,v0,alpha,endpoints)
 N = length(Ix);
 
 %laplace operator
@@ -158,7 +158,7 @@ vChange = v1;
 
 u1=u1+u0;
 v1=v1+v0;
-
-
 end
+
+
 
