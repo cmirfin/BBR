@@ -1,15 +1,15 @@
-function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,Fx,Fy,endpoints)
+function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,Fx,Fy,fixedPoints)
 
 %parameters
 M = -0.5;
 DeltaIn = 2; %projection distance
 DeltaOut = 2;
 
-alpha = 0.6; %regularization
+alpha = 0.5; %regularization
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
-maxwarp = 300;
+maxwarp = 1000;
 
 u1 = zeros(size(points,1),1);
 v1 = u1;
@@ -48,11 +48,11 @@ for i = 1:maxwarp
     end
     grad = double((400*M/N)*grad);
     Ix = grad(:,1); Iy = grad(:,2);
-    [u1,v1]=solveFlow(Ix,Iy,u1,v1,alpha,endpoints);
+    [u1,v1]=solveFlow(Ix,Iy,u1,v1,alpha,fixedPoints);
     
     %regularization cost
-    %[Du,Dv] = transformDerivatives(u1,v1,endpoints);
-    %R = 0.5*alpha*sum(Du.^2 + Dv.^2);
+    [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
+    R = 0.5*alpha*sum(Du.^2 + Dv.^2);
        
     plot(i,J,'.b');
     hold on;
@@ -71,23 +71,23 @@ rOut = r + DeltaOut.*[normals(:,1),normals(:,2)];
 
 xuIn = rIn(:,1) + phi(:,1);
 xuOut = rOut(:,1) + phi(:,1);
-xuIn(xuIn<1) = 0;
-xuIn(xuIn>m) = 0;
-xuIn(isnan(xuIn))=0;
+xuIn(xuIn<1) = rIn(xuIn<1,1);
+xuIn(xuIn>m) = rIn(xuIn>m,1);
+%xuIn(isnan(xuIn))=0;
 
-xuOut(xuOut<1) = 0;
-xuOut(xuOut>m) = 0;
-xuOut(isnan(xuOut))=0;
+xuOut(xuOut<1) = rOut(xuOut<1,1);
+xuOut(xuOut>m) = rOut(xuOut>m,1);
+%xuOut(isnan(xuOut))=0;
 
 yvIn = rIn(:,2) + phi(:,2);
 yvOut = rOut(:,2) + phi(:,2);
-yvIn(yvIn<1) = 0;
-yvIn(yvIn>n) = 0;
-yvIn(isnan(yvIn))=0;
+yvIn(yvIn<1) = rIn(yvIn<1,2);
+yvIn(yvIn>n) = rIn(yvIn>n,2);
+%yvIn(isnan(yvIn))=0;
 
-yvOut(yvOut<1) = 0;
-yvOut(yvOut>n) = 0;
-yvOut(isnan(yvOut))=0;
+yvOut(yvOut<1) = rOut(yvOut<1,2);
+yvOut(yvOut>n) = rOut(yvOut>n,2);
+%yvOut(isnan(yvOut))=0;
 
 rPrime = [xuIn(:), yvIn(:), xuOut(:), yvOut(:)]; 
 
@@ -98,29 +98,29 @@ rPrime = [xuIn(:), yvIn(:), xuOut(:), yvOut(:)];
 % normals(ind,:) = [];
 end
 
-function  [Du,Dv] = transformDerivatives(u,v,endpoints)
+function  [Du,Dv] = transformDerivatives(u,v,fixedPoints)
     deriv=[-1,0,1]/2;
     %D = imfilter([u,v],deriv','replicate'); %NOTE: transpose on deriv
     %Dv = imfilter(v,deriv','replicate'); 
     phi = [u,v];
-    D(1:endpoints(1),:) = imfilter(phi(1:endpoints(1),:),deriv',0);
-    for i = 1:numel(endpoints)-1
+    D(1:fixedPoints(1),:) = imfilter(phi(1:fixedPoints(1),:),deriv',0);
+    for i = 1:numel(fixedPoints)-1
          
-        a = endpoints(i);
-        b = endpoints(i+1);
+        a = fixedPoints(i);
+        b = fixedPoints(i+1);
         
         D(a:b,:) = imfilter(phi(a:b,:),deriv',0);
                 
     end
-    D(endpoints(end):length(u),:) = imfilter(phi(endpoints(end):length(u),:),deriv',0);
+    D(fixedPoints(end):length(u),:) = imfilter(phi(fixedPoints(end):length(u),:),deriv',0);
     
-    D(D > 0.1) = [];
+%    D(D > 0.1) = [];
     
     Du = D(:,1);
     Dv = D(:,2);
 end
 
-function [u1,v1]=solveFlow(Ix,Iy,u0,v0,alpha,endpoints)
+function [u1,v1]=solveFlow(Ix,Iy,u0,v0,alpha,fixedPoints)
 N = length(Ix);
 
 %laplace operator
@@ -128,12 +128,14 @@ x1=ones(N,1).*alpha; x1(1)=0;
 x2=ones(N,1).*alpha; x2(end)=0;
 S=spdiags([x1(:),x2(:)],[1,-1],N,N);
 
+
 C=sum(S,1);
-x1(endpoints + 1) = 0;
-x2(endpoints(endpoints > 1) - 1) = 0;
-C(endpoints) = 1;
-C(1) = 1;
-C(end) = 1;
+x1(fixedPoints + 1) = 0;
+x2(fixedPoints - 1) = 0;
+C(fixedPoints) = -1;
+% C(endpoints+1) = 1;
+C(1) = -1;
+C(end) = -1;
 
 L=spdiags([x1(:),x2(:),-C(:)],[1,-1,0],N,N); 
 %replicate L for u,v
