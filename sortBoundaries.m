@@ -1,5 +1,14 @@
 %sort boundary points
-function [sortedPoints,sortedNormals,endpoint,chainLengths,startpoint] = sortBoundaries(points,normals)
+function [sortedPoints,sortedNormals,endpoint,startpoint] = sortBoundaries(points,normals,flag)
+
+if nargin < 3
+    %no plotting of boundaries
+    fprintf('Display boundaries switched off \n');
+    flag = false;
+else
+    fprintf('Display boundaries switched on \n');
+    flag = true;
+end
 
 tolerance = sqrt(2);
 %find start point of chain
@@ -16,34 +25,38 @@ N = size(points,1);
 %order(1) = 1; % first point is first row in data matrix
 
 endpoint = [];
-chainLengths = [];
+%chainLengths = [];
 startpoint = 1;
-figure;
-plot(points(:,1),points(:,2),'.');
-hold on;
+
+if flag == true
+    
+    figure;
+    plot(points(:,1),points(:,2),'.');
+    hold on;
+end
+
 count = 0;
 idx = 1;
 for i = 1:N
 
     dist(:,idx) = Inf;
-    previous_idx = idx;
     [val, idx] = min(dist(idx,:));
     if val > tolerance
-%        endpoint = [endpoint, previous_idx];
+
         d(order) = 0;
         idx = find(d > 0,1,'first'); %NOTE: this line may be unnecessary
-%        startpoint = [startpoint,idx];
-%        chainLengths = [chainLengths, count];
         endpoint = [endpoint, count];
        fprintf('Count: %d \n',count);
     end
     order(i) = idx;
     count = count+1;
-   plot(points(idx,1),points(idx,2),'.r');
-    drawnow;
+    if flag == true
+        plot(points(idx,1),points(idx,2),'.r');
+        drawnow;
+    end
 end
 endpoint = [endpoint(:);count];
-chainLengths = chainLengths(:);
+%chainLengths = chainLengths(:);
 %endpoint = cumsum(chainLengths);
 startpoint = [1;endpoint(1:end-1)+1];
 %startpoint = startpoint(:);
@@ -56,5 +69,7 @@ order = order(:);
 sortedPoints = points(order,:);
 sortedNormals = normals(order,:);
 
-plot(sortedPoints(endpoint,1),sortedPoints(endpoint,2),'.b','MarkerSize',20);
-plot(sortedPoints(startpoint,1),sortedPoints(startpoint,2),'.g','MarkerSize',20);
+if flag == true
+    plot(sortedPoints(endpoint,1),sortedPoints(endpoint,2),'.b','MarkerSize',20);
+    plot(sortedPoints(startpoint,1),sortedPoints(startpoint,2),'.g','MarkerSize',20);
+end

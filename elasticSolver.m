@@ -1,4 +1,4 @@
-function [uFull,vFull] = elasticSolver(u,v, pixelPositions,u0,v0)
+function [uFull,vFull] = elasticSolver(u,v,pixelPositions,u0,v0)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 mu = 1e-9;

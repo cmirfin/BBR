@@ -9,7 +9,7 @@ alpha = 0.5; %regularization
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
-maxwarp = 1000;
+maxwarp = 500;
 
 u1 = zeros(size(points,1),1);
 v1 = u1;
@@ -32,7 +32,7 @@ for i = 1:maxwarp
     FxInterp = interp2(X,Y,Fx,y,x,'linear',0); %x-gradient
     FyInterp = interp2(X,Y,Fy,y,x,'linear',0); %y-gradient
     
-    Q = M*(100*(valueIn-valueOut)./(0.5*(valueIn+valueOut)));
+    Q = (M*(100*(valueIn-valueOut)./(0.5*(valueIn+valueOut))));
     
     J = 1 + tanh(Q);
     J = double(sum(J))/N;
@@ -56,7 +56,8 @@ for i = 1:maxwarp
        
     plot(i,J,'.b');
     hold on;
-    %plot(i,R,'.r')
+    plot(i,R,'.r')
+    hold on;
     drawnow;
 end
 
@@ -99,23 +100,22 @@ rPrime = [xuIn(:), yvIn(:), xuOut(:), yvOut(:)];
 end
 
 function  [Du,Dv] = transformDerivatives(u,v,fixedPoints)
-    deriv=[-1,0,1]/2;
+    %deriv=[-1,0,1]/2;
+    deriv = [-1,1]/2;
     %D = imfilter([u,v],deriv','replicate'); %NOTE: transpose on deriv
     %Dv = imfilter(v,deriv','replicate'); 
     phi = [u,v];
-    D(1:fixedPoints(1),:) = imfilter(phi(1:fixedPoints(1),:),deriv',0);
-    for i = 1:numel(fixedPoints)-1
+    num = length(fixedPoints);
+    startpoints = fixedPoints(1:num/2);
+    endpoints = fixedPoints(num/2 + 1:end);
+    for i = 1:num/2
          
-        a = fixedPoints(i);
-        b = fixedPoints(i+1);
+        a = startpoints(i,1);
+        b = endpoints(i,1);
         
-        D(a:b,:) = imfilter(phi(a:b,:),deriv',0);
-                
+        D(a:b,:) = (imfilter(phi(a:b,:),deriv',0));
+          
     end
-    D(fixedPoints(end):length(u),:) = imfilter(phi(fixedPoints(end):length(u),:),deriv',0);
-    
-%    D(D > 0.1) = [];
-    
     Du = D(:,1);
     Dv = D(:,2);
 end
@@ -128,32 +128,21 @@ x1=ones(N,1).*alpha; x1(1)=0;
 x2=ones(N,1).*alpha; x2(end)=0;
 S=spdiags([x1(:),x2(:)],[1,-1],N,N);
 
-
 C=sum(S,1);
-x1(fixedPoints + 1) = 0;
-x2(fixedPoints - 1) = 0;
-C(fixedPoints) = -1;
-% C(endpoints+1) = 1;
-C(1) = -1;
-C(end) = -1;
+%don't regularise between boundaries (e.g. between end/start points)
+x1(fixedPoints(2:end-1) + 1) = 0;
+x2(fixedPoints(2:end-1) - 1) = 0;
+C(fixedPoints) = 1;
 
 L=spdiags([x1(:),x2(:),-C(:)],[1,-1,0],N,N); 
 %replicate L for u,v
 A=[L,sparse(N,N);sparse(N,N),L];
 
-%set-up linear system of equations
-
-% b=A*double([u0(:);v0(:)])-double([Ix(:);Iy(:)]);
 b=double([Ix(:);Iy(:)]); %only incremental
 
-tic;
 %solve Gauss-Newton update-step with Diffusion Regularisation
 uv1=A\b;
 
-%[uv1,flagpcg]=pcg(A,b,[],20);
-%[uv1,flagbig]=bicgstab(A,b,1E-2,20,[],[],double([u0(:);v0(:)]));
-%[uv1,flag,res,nit]=sor(A',b,1.9,25,1E-4,double([u0(:);v0(:)]));
-tOp=toc;
 u1=reshape(uv1(1:N),N,1);
 v1=reshape(uv1(N+1:end),N,1);
 
