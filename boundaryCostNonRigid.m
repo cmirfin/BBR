@@ -1,4 +1,4 @@
-function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,Fx,Fy,fixedPoints)
+function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,fixedPoints)
 
 %parameters
 M = -0.5;
@@ -13,6 +13,11 @@ maxwarp = 500;
 
 u1 = zeros(size(points,1),1);
 v1 = u1;
+
+figure;
+plot(points(:,2),points(:,1),'.');
+
+[Fx, Fy] = gradient(fixedImage);
 
 for i = 1:maxwarp
 
@@ -54,10 +59,13 @@ for i = 1:maxwarp
     [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
     R = 0.5*alpha*sum(Du.^2 + Dv.^2);
        
-    plot(i,J,'.b');
-    hold on;
-    plot(i,R,'.r')
-    hold on;
+%     plot(i,J,'.b');
+%     hold on;
+%     plot(i,R,'.r')
+%     hold on;
+%     drawnow;
+    tpoints = round([u1,v1] + points);
+    plot(tpoints(:,2),tpoints(:,1),'.');
     drawnow;
 end
 
@@ -122,7 +130,9 @@ end
 
 function [u1,v1]=solveFlow(Ix,Iy,u0,v0,alpha,fixedPoints)
 N = length(Ix);
-
+num = length(fixedPoints);
+s = fixedPoints(1:num/2);
+e = fixedPoints(num/2 + 1:end);
 %laplace operator
 x1=ones(N,1).*alpha; x1(1)=0;
 x2=ones(N,1).*alpha; x2(end)=0;
@@ -130,8 +140,14 @@ S=spdiags([x1(:),x2(:)],[1,-1],N,N);
 
 C=sum(S,1);
 %don't regularise between boundaries (e.g. between end/start points)
-x1(fixedPoints(2:end-1) + 1) = 0;
-x2(fixedPoints(2:end-1) - 1) = 0;
+% x1(fixedPoints(2:end-1) + 1) = 0;
+% x2(fixedPoints(2:end-1) - 1) = 0;
+
+x1(s(2:end-1) + 1) = 0;
+x2(s(2:end-1) - 1) = 0;
+x1(e(2:end-1) + 1) = 0;
+x2(e(2:end-1) - 1) = 0;
+
 C(fixedPoints) = 1;
 
 L=spdiags([x1(:),x2(:),-C(:)],[1,-1,0],N,N); 
