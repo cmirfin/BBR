@@ -1,11 +1,11 @@
-function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,fixedPoints)
+function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,fixedPoints,alpha)
 
 %parameters
 M = -0.5;
 DeltaIn = 2; %projection distance
 DeltaOut = 2;
 
-alpha = 0.5; %regularization
+%alpha = 0.5; %regularization
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
@@ -16,7 +16,6 @@ v1 = u1;
 
 figure;
 plot(points(:,2),points(:,1),'.');
-
 [Fx, Fy] = gradient(fixedImage);
 
 for i = 1:maxwarp
@@ -56,8 +55,8 @@ for i = 1:maxwarp
     [u1,v1]=solveFlow(Ix,Iy,u1,v1,alpha,fixedPoints);
     
     %regularization cost
-    [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
-    R = 0.5*alpha*sum(Du.^2 + Dv.^2);
+%     [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
+%     R = 0.5*alpha*sum(Du.^2 + Dv.^2);
        
 %     plot(i,J,'.b');
 %     hold on;

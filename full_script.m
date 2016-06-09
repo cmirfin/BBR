@@ -4,7 +4,7 @@ addpath('~/Documents/ONBI-Project1/HistoRegModified/RegCode/NIfTI_20140122/');
 addpath('~/Documents/ONBI-Project1/HistoRegModified/RegCode/OpticalFlowMIND/');
 
 filename1 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/mge3d.nii.gz';
-filename2 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/PLI/Transmittance_CC05.tif';
+filename2 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/PLI/Transmittance_CC01.tif';
 
 %% read in MRI image (and average MGE)
 
@@ -26,9 +26,9 @@ backgroundMovingImage(backgroundMovingImage>0) = 1; %not background
 im2_orig = imread(filename2);
 fixedImage = padarray(imresize(single(flipud(im2_orig)),[210,355]),[5,0],255);
 fixedImage(fixedImage <= 0) = 255; %get rid off patched image edges.
-fixedImage = medfilt2(fixedImage,[5,5]);
-fixedImage(:,end-5:end) = 255;
-fixedImage(:,1:5) = 255;
+% fixedImage = medfilt2(fixedImage,[5,5]);
+% fixedImage(:,end-5:end) = 255;
+% fixedImage(:,1:5) = 255;
 %fixedImage = padarray(fixedImage,[20,20],'both');
 %fixedImage(fixedImage <=0) = 255;
 
@@ -36,6 +36,7 @@ clear im2_orig;
 %% perform registration using locally adaptive MIND
 
 [u1,v1,movingImage]=deformableReg2Dmind_adaptive(fixedImage,inputImage,.3);
+%[u1,v1,movingImage]=deformableReg2Dmind_asym(fixedImage,inputImage,.3);
 rgb_disc=gray2blue(movingImage)+gray2orange(fixedImage);
 rgb_before=gray2blue(inputImage)+gray2orange(fixedImage);
 
@@ -61,7 +62,7 @@ fixedPoints = [startpoints;endpoints];
 
 %% solve
 
-[u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints);
+[u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints,0.3);
 
 %% boundary visualization
 

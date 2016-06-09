@@ -17,11 +17,11 @@ fixedImage = medfilt2(fixedImage,[5,5]);
 fixedImage(:,end-5:end) = 255;
 fixedImage(:,1:5) = 255;
 
-[m,n] = size(movingImage);
-backgroundMovingImage = reshape(kmeans(movingImage(:),3),m,n);
-backgroundClass = backgroundMovingImage(1,1); %K-means classifcation of background
-backgroundMovingImage(backgroundMovingImage==backgroundClass) = 0; %background
-backgroundMovingImage(backgroundMovingImage>0) = 1; %not background
+% [m,n] = size(movingImage);
+% backgroundMovingImage = reshape(kmeans(movingImage(:),3),m,n);
+% backgroundClass = backgroundMovingImage(1,1); %K-means classifcation of background
+% backgroundMovingImage(backgroundMovingImage==backgroundClass) = 0; %background
+% backgroundMovingImage(backgroundMovingImage>0) = 1; %not background
 
 %movingImage = medfilt2(movingImage,[5,5]);
 %% find boundary and projection points in moving image (im1)
@@ -34,17 +34,15 @@ DeltaOut = 2;
  %remove start and final point
 
 fixedPoints = [startpoints;endpoints];
-
-[Fx,Fy] = gradient(fixedImage);
 %% solve
 
-[u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints);
+[u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints,0.5);
 
 %% boundary visualization
 
 tpoints = round([u,v] + boundaryPoints);
 %boundaryImg = zeros(size(movingImage));
-boundaryImg = movingImage;
+boundaryImg = fixedImage;
 for i = 1:length(boundaryPoints)
     boundaryImg(boundaryPoints(i,1),boundaryPoints(i,2)) = 100;
     boundaryImg(tpoints(i,1),tpoints(i,2)) = 255;
@@ -56,10 +54,8 @@ imagesc(boundaryImg)
 %% interpolating vector field
 
 %intialize flow fields
-u0 = zeros(size(movingImage));
-v0 = u0;
-
-[uF,vF] = elasticSolver(u,v,boundaryPoints,u0,v0);
+[m,n] = size(movingImage);
+[uF,vF] = elasticSolver(u,v,boundaryPoints,m,n);
 figure;
 quiver(uF,vF);
 outputImage = transformInterpolation2d(movingImage,uF,vF);
