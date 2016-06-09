@@ -4,7 +4,7 @@ addpath('~/Documents/ONBI-Project1/HistoRegModified/RegCode/NIfTI_20140122/');
 addpath('~/Documents/ONBI-Project1/HistoRegModified/RegCode/OpticalFlowMIND/');
 
 filename1 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/mge3d.nii.gz';
-filename2 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/PLI/Transmittance_CC01.tif';
+filename2 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/PLI/Transmittance_CC02.tif';
 
 %% read in MRI image (and average MGE)
 
@@ -26,7 +26,10 @@ backgroundMovingImage(backgroundMovingImage>0) = 1; %not background
 im2_orig = imread(filename2);
 fixedImage = padarray(imresize(single(flipud(im2_orig)),[210,355]),[5,0],255);
 fixedImage(fixedImage <= 0) = 255; %get rid off patched image edges.
-% fixedImage = medfilt2(fixedImage,[5,5]);
+fixedImage(fixedImage > 255) = 255;
+fixedImage = straightLineRemover(fixedImage,10,255); %vertical direction
+fixedImage = straightLineRemover(fixedImage',10,255)'; %NOTE transposes - horizontal direction
+fixedImage = medfilt2(fixedImage,[3,3]);
 % fixedImage(:,end-5:end) = 255;
 % fixedImage(:,1:5) = 255;
 %fixedImage = padarray(fixedImage,[20,20],'both');
@@ -80,13 +83,9 @@ imagesc(boundaryImg)
 %% interpolating vector field
 
 %intialize flow fields
-u0 = zeros(size(movingImage));
-v0 = u0;
 
-[uF,vF] = elasticSolver(u,v,boundaryPoints,u0,v0);
-figure;
-quiver(uF,vF);
-outputImage = transformInterpolation2d(movingImage,uF,vF);
+outputImage = weightedInterpolation(movingImage,u,v,boundaryPoints);
+
 figure;
 imagesc(outputImage);
 %outputImage = medfilt2(outputImage,[5,5]);

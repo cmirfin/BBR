@@ -12,11 +12,9 @@ background(background>0) = 1; %not background
 background = background(:);
 backgroundIdx = find(background == 0);
 
-
-
 %[uF,vF] = elasticSolver2(uBoundary,vBoundary,boundaryPoints,backgroundIdx,img);
-[uF, vF] = vectorFieldExtrapolation(uBoundary,vBoundary,boundaryPoints,m,n);
-% [uF,vF] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
+%[uF, vF] = vectorFieldExtrapolation(uBoundary,vBoundary,boundaryPoints,m,n);
+[uF,vF] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
 uF = uF(:);
 vF = vF(:);
 uF(backgroundIdx) = [];
@@ -55,10 +53,7 @@ for i = 1:m*n
     y = Y(i);
     
     ind = find(Xp < x+0.5 & Xp >= x-0.5 & Yp < y+0.5 & Yp >= y-0.5);
-%     ind2 = find(Yp < y+0.5 & Yp >= y-0.5);
-%     
-%     I = find(ind1 == ind2);
-%     ind = ind1(I);
+
     %Case 1: ind = [] (empty) - assign this point to background
     if isempty(ind) == 1 %TRUE
         outputImg(x,y) = 0;
