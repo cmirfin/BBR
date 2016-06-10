@@ -15,20 +15,14 @@ inputImage = imresize(im1_orig(8:117,37:223)/530,[220,355]);
 %inputImage = padarray(inputImage,[20,20],'both');
 
 clear vol1; clear im1_orig;
-%% background segmentation of movingImage
-[m,n] = size(inputImage);
-backgroundMovingImage = reshape(kmeans(inputImage(:),3),m,n);
-backgroundClass = backgroundMovingImage(1,1); %K-means classifcation of background
-backgroundMovingImage(backgroundMovingImage==backgroundClass) = 0; %background
-backgroundMovingImage(backgroundMovingImage>0) = 1; %not background
 
 %% read in PLI image and preprocess
 im2_orig = imread(filename2);
 fixedImage = padarray(imresize(single(flipud(im2_orig)),[210,355]),[5,0],255);
 fixedImage(fixedImage <= 0) = 255; %get rid off patched image edges.
 fixedImage(fixedImage > 255) = 255;
-fixedImage = straightLineRemover(fixedImage,10,255); %vertical direction
-fixedImage = straightLineRemover(fixedImage',10,255)'; %NOTE transposes - horizontal direction
+fixedImage = straightLineRemover(fixedImage,25,255); %vertical direction
+fixedImage = straightLineRemover(fixedImage',25,255)'; %NOTE transposes - horizontal direction
 fixedImage = medfilt2(fixedImage,[3,3]);
 % fixedImage(:,end-5:end) = 255;
 % fixedImage(:,1:5) = 255;
@@ -38,8 +32,8 @@ fixedImage = medfilt2(fixedImage,[3,3]);
 clear im2_orig;
 %% perform registration using locally adaptive MIND
 
-[u1,v1,movingImage]=deformableReg2Dmind_adaptive(fixedImage,inputImage,.3);
-%[u1,v1,movingImage]=deformableReg2Dmind_asym(fixedImage,inputImage,.3);
+%[u1,v1,movingImage]=deformableReg2Dmind_adaptive(fixedImage,inputImage,.3);
+[u1,v1,movingImage]=deformableReg2Dmind_asym(fixedImage,inputImage,.3);
 rgb_disc=gray2blue(movingImage)+gray2orange(fixedImage);
 rgb_before=gray2blue(inputImage)+gray2orange(fixedImage);
 
@@ -53,8 +47,8 @@ magnitude=grey2parula(min(sqrt(u1.^2+v1.^2),20)./20);
 % imwrite(movingImage/255,'warped_mri.png');
 
 %% find boundary and projection points in moving image (im1)
-DeltaIn = 2; %projection distance
-DeltaOut = 2;
+DeltaIn = 3; %projection distance
+DeltaOut = 3;
 
 [boundaryPoints, normals] = boundaryNormal(movingImage,max(DeltaIn,DeltaOut)); %NOTE: normals are unit vectors with direction
 %[boundaryPoints, normals] = tissueBoundary(backgroundMovingImage,backgroundMovingImage,max(DeltaIn,DeltaOut));
@@ -65,7 +59,7 @@ fixedPoints = [startpoints;endpoints];
 
 %% solve
 
-[u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints,0.3);
+[u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints,DeltaIn,DeltaOut,0.3);
 
 %% boundary visualization
 
@@ -80,11 +74,9 @@ end
 figure;
 imagesc(boundaryImg)
 
-%% interpolating vector field
+%% Extrapolation of vector field and interpolation of image
 
-%intialize flow fields
-
-outputImage = weightedInterpolation(movingImage,u,v,boundaryPoints);
+outputImage = weightedInterpolation(movingImage,u,v,boundaryPoints,'elasticSolver',1); %NOTE: specify extrapolaton scheme
 
 figure;
 imagesc(outputImage);

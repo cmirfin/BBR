@@ -1,9 +1,9 @@
-function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,fixedPoints,alpha)
+function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,fixedPoints,DeltaIn,DeltaOut,alpha)
 
 %parameters
 M = -0.5;
-DeltaIn = 2; %projection distance
-DeltaOut = 2;
+% DeltaIn = 2; %projection distance
+% DeltaOut = 2;
 
 %alpha = 0.5; %regularization
 
@@ -40,7 +40,7 @@ for i = 1:maxwarp
     
     J = 1 + tanh(Q);
     J = double(sum(J))/N;
-    fprintf('Cost: %f \n',J);
+    %fprintf('Cost: %f \n',J);
     
     %gradients
     derivIn = [FxInterp(1:N),FyInterp(1:N)];
@@ -55,14 +55,15 @@ for i = 1:maxwarp
     [u1,v1]=solveFlow(Ix,Iy,u1,v1,alpha,fixedPoints);
     
     %regularization cost
-%     [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
-%     R = 0.5*alpha*sum(Du.^2 + Dv.^2);
+    [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
+    R = 0.5*alpha*sum(Du.^2 + Dv.^2);
        
 %     plot(i,J,'.b');
 %     hold on;
 %     plot(i,R,'.r')
 %     hold on;
 %     drawnow;
+    fprintf('Cost: %f \n',J+R);
     tpoints = round([u1,v1] + points);
     plot(tpoints(:,2),tpoints(:,1),'.');
     drawnow;

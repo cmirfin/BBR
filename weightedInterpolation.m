@@ -1,4 +1,4 @@
-function outputImg = weightedInterpolation(img,uBoundary,vBoundary,boundaryPoints)
+function outputImg = weightedInterpolation(img,uBoundary,vBoundary,boundaryPoints,method,radius)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,15 +12,24 @@ background(background>0) = 1; %not background
 background = background(:);
 backgroundIdx = find(background == 0);
 
-%[uF,vF] = elasticSolver2(uBoundary,vBoundary,boundaryPoints,backgroundIdx,img);
-%[uF, vF] = vectorFieldExtrapolation(uBoundary,vBoundary,boundaryPoints,m,n);
-[uF,vF] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
-uF = uF(:);
-vF = vF(:);
-uF(backgroundIdx) = [];
-vF(backgroundIdx) = [];
-% img = double(img(:));
-% img(backgroundIdx) = []; %remove background pixels
+switch(method)
+    case 'elasticSolver'
+        [uF,vF] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
+        uF = uF(:);
+        vF = vF(:);
+        uF(backgroundIdx) = [];
+        vF(backgroundIdx) = [];
+        
+    case 'elasticSolver2'
+        [uF,vF] = elasticSolver2(uBoundary,vBoundary,boundaryPoints,backgroundIdx,img);
+        
+    case 'vectorFieldExtrapolation'
+        [uF, vF] = vectorFieldExtrapolation(uBoundary,vBoundary,boundaryPoints,m,n);
+        uF = uF(:);
+        vF = vF(:);
+        uF(backgroundIdx) = [];
+        vF(backgroundIdx) = [];
+end
  
 [Y,X] = meshgrid(1:n,1:m);
 
@@ -33,8 +42,6 @@ Y0 = Y;
 %remove background pixel positions
 X0(backgroundIdx) = [];
 Y0(backgroundIdx) = [];
-
-
 
 %transform tissue pixels
 Xp = X0 + uF;
@@ -52,7 +59,7 @@ for i = 1:m*n
     x = X(i);
     y = Y(i);
     
-    ind = find(Xp < x+0.5 & Xp >= x-0.5 & Yp < y+0.5 & Yp >= y-0.5);
+    ind = find(Xp <= x+radius & Xp >= x-radius & Yp <= y+radius & Yp >= y-radius);
 
     %Case 1: ind = [] (empty) - assign this point to background
     if isempty(ind) == 1 %TRUE
