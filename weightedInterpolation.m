@@ -1,4 +1,4 @@
-function outputImg = weightedInterpolation(img,uBoundary,vBoundary,boundaryPoints,method,radius)
+function [outputImg,u2,v2] = weightedInterpolation(img,uBoundary,vBoundary,boundaryPoints,method,radius)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -14,9 +14,9 @@ backgroundIdx = find(background == 0);
 
 switch(method)
     case 'elasticSolver'
-        [uF,vF] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
-        uF = uF(:);
-        vF = vF(:);
+        [u2,v2] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
+        uF = u2(:);
+        vF = v2(:);
         uF(backgroundIdx) = [];
         vF(backgroundIdx) = [];
         
