@@ -1,6 +1,10 @@
-function [boundary,normals] = boundaryNormal(img,Delta)
+% Christopher J. Mirfin 
+% Sir Peter Mansfield Imaging Centre, University of Nottingham
+% christopher.mirfin@dtc.ox.ac.uk
+% 23/07/2016
 
-%function takes an image, finds boundaries and computes normal to these
+function [boundary,normals] = boundaryNormal(img,Delta)
+%function BOUNDARYNORMAL takes an image, finds boundaries and computes normal to these
 %boundaries.
 if nargin < 2
     Delta = 2;
@@ -11,15 +15,15 @@ end
 %find boundary points
 [boundaryImg] = edge(img,'sobel');
 
-%reduce 
+
 newBoundaryImg = zeros(size(img));
 newBoundaryImg(Delta:end-Delta,Delta:end-Delta) = boundaryImg(Delta:end-Delta,Delta:end-Delta);
-%newBoundaryImg(85:end-30,80:end-80) = boundaryImg(85:end-30,80:end-80);
 [X,Y] = find(newBoundaryImg == 1);
 boundary = [X(:),Y(:)];
 
 [dx,dy] = gradient(img);
 
+% normalise vectors
 l=sqrt(dx.^2+dy.^2);
 dx = dx./l; 
 dy = dy./l;
@@ -36,15 +40,15 @@ end
 normals = ([nx;ny])';
 
 %plot vectors
-Nx = zeros(size(img));
-Ny = zeros(size(img));
-
-for i = 1:length(X)
-
-Nx(X(i),Y(i)) = nx(i);
-Ny(X(i),Y(i)) = ny(i);
-end
-
-quiver(Nx,Ny);
+% Nx = zeros(size(img));
+% Ny = zeros(size(img));
+% 
+% for i = 1:length(X)
+% 
+% Nx(X(i),Y(i)) = nx(i);
+% Ny(X(i),Y(i)) = ny(i);
+% end
+% 
+% quiver(Nx,Ny);
 end
 

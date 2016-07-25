@@ -1,22 +1,28 @@
+% Christopher J. Mirfin 
+% Sir Peter Mansfield Imaging Centre, University of Nottingham
+% christopher.mirfin@dtc.ox.ac.uk
+% 23/07/2016
+
 function [u1,v1] = boundaryCostNonRigid(points,normals,fixedImage,fixedPoints,DeltaIn,DeltaOut,alpha)
+% BOUNDARYCOSTNONRIGID returns the displacement vectors based that
+% transform the boundaries from one image to the fixedImage.
+% This is non-rigid implementation of the BBR cost function proposed by
+% Greve et al (2009).
 
 %parameters
 M = -0.5;
-% DeltaIn = 2; %projection distance
-% DeltaOut = 2;
-
-%alpha = 0.5; %regularization
+maxwarp = 500;
 
 [m,n] = size(fixedImage);
 [X,Y] = meshgrid(1:n,1:m); %grid points of fixed image
-maxwarp = 500;
+
 
 u1 = zeros(size(points,1),1);
 v1 = u1;
 
-figure;
-plot(points(:,2),points(:,1),'.');
-[Fx, Fy] = gradient(fixedImage);
+% figure;
+% plot(points(:,2),points(:,1),'.');
+% [Fx, Fy] = gradient(fixedImage);
 
 for i = 1:maxwarp
 
@@ -39,10 +45,9 @@ for i = 1:maxwarp
     Q = (M*(100*(valueIn-valueOut)./(0.5*(valueIn+valueOut))));
     
     J = 1 + tanh(Q);
-    J = double(sum(J))/N;
-    %fprintf('Cost: %f \n',J);
+    J = double(sum(J))/N; % cost function
     
-    %gradients
+    % gradients
     derivIn = [FxInterp(1:N),FyInterp(1:N)];
     derivOut = [FxInterp(N+1:end),FyInterp(N+1:end)];
     
@@ -55,15 +60,9 @@ for i = 1:maxwarp
     [u1,v1]=solveFlow(Ix,Iy,u1,v1,alpha,fixedPoints);
     
     %regularization cost
-    [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
-    R = 0.5*alpha*sum(Du.^2 + Dv.^2);
-       
-%     plot(i,J,'.b');
-%     hold on;
-%     plot(i,R,'.r')
-%     hold on;
-%     drawnow;
-    fprintf('Cost: %f \n',J+R);
+%     [Du,Dv] = transformDerivatives(u1,v1,fixedPoints);
+%     R = 0.5*alpha*sum(Du.^2 + Dv.^2);
+
     tpoints = round([u1,v1] + points);
     plot(tpoints(:,2),tpoints(:,1),'.');
     drawnow;

@@ -1,12 +1,23 @@
-%% addpaths
+% Christopher J. Mirfin 
+% Sir Peter Mansfield Imaging Centre, University of Nottingham
+% christopher.mirfin@dtc.ox.ac.uk
+% 23/07/2016
+
+% For MIND code (stage 1)- Code by MP Heinrich
+% MP Heinrich, M Jenkinson, M Bhushan, T Matin, F Gleeson, M Brady, JA Schnabel.
+% MIND: Modality Independent Neighbourhood Descriptor for Multi-modal Deformable Registration 
+% Medical Image Analysis. vol. 16(7) 2012, pp. 1423?1435
+
+%% 
 clear;
 close all;
 clc;
-addpath('~/Documents/ONBI-Project1/HistoRegModified/RegCode/NIfTI_20140122/');
-addpath('~/Documents/ONBI-Project1/HistoRegModified/RegCode/OpticalFlowMIND/');
 
-filename1 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/mge3d.nii.gz';
-filename2 = '~/Documents/ONBI-Project1/HistoRegModified/ExampleData/PLI/Transmittance_CC11.tif';
+%% Load Images
+% NOTE - requires nifti extraction tools
+
+filename1 = '';
+filename2 = '';
 
 % read in MRI image (and average MGE)
 
@@ -22,52 +33,39 @@ im2_orig = imread(filename2);
 fixedImage = padarray(imresize(single(flipud(im2_orig)),[210,355]),[5,0],255);
 fixedImage(fixedImage <= 0) = 255; %get rid off patched image edges.
 fixedImage(fixedImage > 255) = 255;
-fixedImage = straightLineRemover(fixedImage,25,255); %vertical direction
+fixedImage = straightLineRemover(fixedImage,25,255); % vertical direction
 fixedImage = straightLineRemover(fixedImage',25,255)'; %NOTE transposes - horizontal direction
 fixedImage = medfilt2(fixedImage,[3,3]);
-% fixedImage(:,end-5:end) = 255;
-% fixedImage(:,1:5) = 255;
-%fixedImage = padarray(fixedImage,[20,20],'both');
-%fixedImage(fixedImage <=0) = 255;
 
 clear im2_orig;
-% perform registration using locally adaptive MIND
 
-%[u1,v1,movingImage]=deformableReg2Dmind_adaptive(fixedImage,inputImage,.3);
+%% Stage 1 - MIND (standard asymmetric or with locally adaptive weighting)
 [u1,v1,movingImage]=deformableReg2Dmind_asym(fixedImage,inputImage,.3);
+%[u1,v1,movingImage]=deformableReg2Dmind_adaptive(fixedImage,inputImage,.3);
 
+%% Stage 2 - BBR
 
-% find boundary and projection points in moving image (im1)
 DeltaIn = 3; %projection distance
 DeltaOut = 3;
 
 [boundaryPoints, normals] = boundaryNormal(movingImage,max(DeltaIn,DeltaOut)); %NOTE: normals are unit vectors with direction
-
 [boundaryPoints,normals,endpoints,startpoints] = sortBoundaries(boundaryPoints,normals); %NOTE: add third input to graphically display boundaries
- %remove start and final point
 
 fixedPoints = [startpoints;endpoints];
-% solve
 
+% solve
 [u,v] = boundaryCostNonRigid(boundaryPoints,normals,fixedImage,fixedPoints,DeltaIn,DeltaOut,0.3);
 
-% boundary visualization
-
-tpoints = round([u,v] + boundaryPoints);
-%boundaryImg = zeros(size(movingImage));
-boundaryImg = fixedImage;
-for i = 1:length(boundaryPoints)
-    %boundaryImg(boundaryPoints(i,1),boundaryPoints(i,2)) = 100;
-    boundaryImg(tpoints(i,1),tpoints(i,2)) = 255;
-    
-end
-figure;
-imagesc(fixedImage)
-colormap(gray)
-hold on;
-plot(tpoints(:,2),tpoints(:,1),'.r','MarkerSize',10);
-hold off;
-
 % Extrapolation of vector field and interpolation of image
+[outputImage,u2,v2] = weightedInterpolation(movingImage,u,v,boundaryPoints,1);
 
-[outputImage,u2,v2] = weightedInterpolation(movingImage,u,v,boundaryPoints,'elasticSolver',1); %NOTE: specify extrapolaton scheme
+
+%% Visualization 
+
+figure;
+subplot(2,2,1); imagesc(inputImage); title('input MRI'); colormap(gray);
+subplot(2,2,2); imagesc(fixedImage); title('fixed PLI'); colormap(gray);
+subplot(2,2,3); imagesc(movingImage); title('Stage 1 - MIND'); colormap(gray);
+subplot(2,2,4); imagesc(outputImage); title('Stage 2 - MIND + BBR'); colormap(gray);
+
+

@@ -1,5 +1,13 @@
-%sort boundary points
+% Christopher J. Mirfin 
+% Sir Peter Mansfield Imaging Centre, University of Nottingham
+% christopher.mirfin@dtc.ox.ac.uk
+% 23/07/2016
+
 function [sortedPoints,sortedNormals,endpoint,startpoint] = sortBoundaries(points,normals,flag)
+% SORTBOUNDARIES orders points from image origin, using Euclidean
+% norm. If adjacent points are not touching, they are assumed to be a
+% different line segment.
+% Use third input argument to visulize this process.
 
 if nargin < 3
     %no plotting of boundaries

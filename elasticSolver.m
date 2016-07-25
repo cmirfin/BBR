@@ -1,7 +1,14 @@
+% Christopher J. Mirfin 
+% Sir Peter Mansfield Imaging Centre, University of Nottingham
+% christopher.mirfin@dtc.ox.ac.uk
+% 23/07/2016
+
 function [uFull,vFull] = elasticSolver(u,v,pixelPositions,m,n)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-mu = 1;
+%ELASTICSOLVER uses a elastic deformation transformation to summise the
+%vector field at every position (x,y) given only transformations for
+%boundary points.
+
+mu = 1; % Lame parameter
 %[m,n] = size(u0);
 u0 = zeros(m,n);
 v0 = u0;
@@ -30,9 +37,6 @@ C = D(:)+C(:);
 L=spdiags([x1(:),x2(:),y(:),y(:),-C(:)],[1,-1,m,-m,0],m*n,m*n); 
 %replicate L for u,v
 A=[L,sparse(m*n,m*n);sparse(m*n,m*n),L];
-
-%b=-double([Ixt(:);Iyt(:)]); %only incremental
-
 
 %solve Gauss-Newton update-step with Diffusion Regularisation
 uv1=-A\b;
