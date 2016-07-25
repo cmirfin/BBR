@@ -16,9 +16,13 @@ Change 'filename1' and 'filename2' in full_script with appropriate paths to loca
 Note: nifti package is required to handle mri data.
 Note: demos require user to addpath to above folder system.
 
+## Contributors
+
+Christopher J. Mirfin (christopher.mirfin@dtc.ox.ac.uk)
+Mattias P. Heinrich for providing MIND code. 
+
 ## Acknowledgements
 
-Mattias P. Heinrich for providing MIND code. 
 This work was funded by the ESPRC and MRC as part of the Doctoral Training Centre, Oxford, UK and undertaken at the Oxford University Centre for Functional MRI of the Brain, Oxford, UK.
 
 ## License
