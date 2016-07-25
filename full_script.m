@@ -71,22 +71,3 @@ hold off;
 % Extrapolation of vector field and interpolation of image
 
 [outputImage,u2,v2] = weightedInterpolation(movingImage,u,v,boundaryPoints,'elasticSolver',1); %NOTE: specify extrapolaton scheme
-
-figure;
-imagesc(outputImage);
-% cd output/
-% %imwrite(fixedImage/255,'fixed*01.png');
-% imwrite(movingImage/255,'movingAdaptive17.png');
-% imwrite(outputImage/255,'outputAdaptive17.png');
-% cd ..
-
-[U,V,newImage] = deformableReg2Dmind_adaptive(fixedImage,outputImage,0.3);
-A = [inputImage,fixedImage;newImage,fixedImage];
-figure;
-imagesc(A);
-colormap(gray);
-tpoints(:,1) = tpoints(:,1) + 220;
-tpoints(:,2) = tpoints(:,2) + 355;
-hold on
-plot(tpoints(:,2),tpoints(:,1),'.r','MarkerSize',10);
-hold off

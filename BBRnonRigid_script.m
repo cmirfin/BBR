@@ -17,12 +17,6 @@ fixedImage = medfilt2(fixedImage,[5,5]);
 fixedImage(:,end-5:end) = 255;
 fixedImage(:,1:5) = 255;
 
-% [m,n] = size(movingImage);
-% backgroundMovingImage = reshape(kmeans(movingImage(:),3),m,n);
-% backgroundClass = backgroundMovingImage(1,1); %K-means classifcation of background
-% backgroundMovingImage(backgroundMovingImage==backgroundClass) = 0; %background
-% backgroundMovingImage(backgroundMovingImage>0) = 1; %not background
-
 %movingImage = medfilt2(movingImage,[5,5]);
 %% find boundary and projection points in moving image (im1)
 DeltaIn = 2; %projection distance

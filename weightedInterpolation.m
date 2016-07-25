@@ -12,25 +12,14 @@ background(background>0) = 1; %not background
 background = background(:);
 backgroundIdx = find(background == 0);
 
-switch(method)
-    case 'elasticSolver'
-        [u2,v2] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
-        uF = u2(:);
-        vF = v2(:);
-        uF(backgroundIdx) = [];
-        vF(backgroundIdx) = [];
+
+[u2,v2] = elasticSolver(uBoundary,vBoundary,boundaryPoints,m,n);
+uF = u2(:);
+vF = v2(:);
+uF(backgroundIdx) = [];
+vF(backgroundIdx) = [];
         
-    case 'elasticSolver2'
-        [uF,vF] = elasticSolver2(uBoundary,vBoundary,boundaryPoints,backgroundIdx,img);
-        
-    case 'vectorFieldExtrapolation'
-        [uF, vF] = vectorFieldExtrapolation(uBoundary,vBoundary,boundaryPoints,m,n);
-        uF = uF(:);
-        vF = vF(:);
-        uF(backgroundIdx) = [];
-        vF(backgroundIdx) = [];
-end
- 
+
 [Y,X] = meshgrid(1:n,1:m);
 
 X = X(:);

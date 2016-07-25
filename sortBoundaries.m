@@ -59,13 +59,9 @@ endpoint = [endpoint(:);count];
 if flagempty == 1
     endpoint(1) = [];
 end
-%chainLengths = chainLengths(:);
-%endpoint = cumsum(chainLengths);
-startpoint = [1;endpoint(1:end-1)+1];
-%startpoint = startpoint(:);
 
-%plot(points(startpoint,1),points(startpoint,2),'.g','MarkerSize',20);
-%order(end) = [];
+startpoint = [1;endpoint(1:end-1)+1];
+
 order = order(:);
 
 
