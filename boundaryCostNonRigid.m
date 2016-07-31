@@ -22,7 +22,7 @@ v1 = u1;
 
 % figure;
 % plot(points(:,2),points(:,1),'.');
-% [Fx, Fy] = gradient(fixedImage);
+[Fx, Fy] = gradient(fixedImage);
 
 for i = 1:maxwarp
 

@@ -16,8 +16,8 @@ clc;
 %% Load Images
 % NOTE - requires nifti extraction tools
 
-filename1 = '';
-filename2 = '';
+filename1 = ''; % MRI 
+filename2 = ''; % PLI 
 
 % read in MRI image (and average MGE)
 
